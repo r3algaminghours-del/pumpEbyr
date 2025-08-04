@@ -1,16 +1,24 @@
 import time
 import threading
-import logging
+from flask import Flask
 from telegram import Bot
 from pumpfun_api import fetch_latest_tokens, fetch_token_info, minutes_since
 from filter import is_promising
 
+# Telegram
 TELEGRAM_TOKEN = "8180214699:AAEU79Dd8N_kCZZFXoqdifB3u0-B1BxiHgQ"
-CHANNEL_ID = 1758725762  # твой Telegram ID
+CHANNEL_ID = 1758725762
 bot = Bot(token=TELEGRAM_TOKEN)
-
 seen = set()
 
+# Web stub (чтобы Render не ругался)
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return "PumpFun bot is running!", 200
+
+# Фоновая задача
 def check_tokens():
     while True:
         tokens = fetch_latest_tokens()
@@ -53,5 +61,5 @@ def check_tokens():
         time.sleep(60)
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    threading.Thread(target=check_tokens).start()
+    threading.Thread(target=check_tokens, daemon=True).start()
+    app.run(host="0.0.0.0", port=10000)
