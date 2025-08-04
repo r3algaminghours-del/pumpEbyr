@@ -1,17 +1,17 @@
-import asyncio
-from aiogram import Bot, Dispatcher
+import time
+import threading
+import logging
+from telegram import Bot
 from pumpfun_api import fetch_latest_tokens, fetch_token_info, minutes_since
 from filter import is_promising
 
 TELEGRAM_TOKEN = "8180214699:AAEU79Dd8N_kCZZFXoqdifB3u0-B1BxiHgQ"
-CHANNEL_ID = 1758725762  # твой Telegram user ID
-
-bot = Bot(token=TELEGRAM_TOKEN, parse_mode="HTML")
-dp = Dispatcher()
+CHANNEL_ID = 1758725762  # твой Telegram ID
+bot = Bot(token=TELEGRAM_TOKEN)
 
 seen = set()
 
-async def check_tokens():
+def check_tokens():
     while True:
         tokens = fetch_latest_tokens()
         for token in tokens:
@@ -48,13 +48,10 @@ async def check_tokens():
 📈 Net Inflow: ${int(inflow):,}
 ⏳ Age: {int(age_min)} мин
 """
-                await bot.send_message(CHANNEL_ID, msg)
+                bot.send_message(chat_id=CHANNEL_ID, text=msg, parse_mode="HTML")
 
-        await asyncio.sleep(60)
-
-async def main():
-    asyncio.create_task(check_tokens())
-    await dp.start_polling(bot)
+        time.sleep(60)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    logging.basicConfig(level=logging.INFO)
+    threading.Thread(target=check_tokens).start()
