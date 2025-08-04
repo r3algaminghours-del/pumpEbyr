@@ -1,7 +1,7 @@
 services:
-  - type: worker
+  - type: web
     name: pumpfun-bot
-    runtime: python
+    env: python
     buildCommand: ""
     startCommand: python main.py
     envVars:
